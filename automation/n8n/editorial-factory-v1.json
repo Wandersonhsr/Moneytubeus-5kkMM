@@ -224,6 +224,137 @@
       ],
       "id": "11",
       "name": "QA Block"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MONEYTUBE_BASE_URL}}/api/v1/editorial/episodes/{{$json.data.id}}/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.MONEYTUBE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2140,
+        0
+      ],
+      "id": "12",
+      "name": "Generate Video"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2380,
+        0
+      ],
+      "id": "13",
+      "name": "Wait for Render"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MONEYTUBE_BASE_URL}}/api/v1/editorial/episodes/{{$json.data.id}}/sync",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.MONEYTUBE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2620,
+        0
+      ],
+      "id": "14",
+      "name": "Sync Generation"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.data.state}}",
+              "rightValue": "review",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2860,
+        0
+      ],
+      "id": "15",
+      "name": "Generation Ready?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.data.state}}",
+              "rightValue": "failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3100,
+        160
+      ],
+      "id": "16",
+      "name": "Generation Failed?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{\n  status:\"GENERATION_FAILED\",\n  episode_id:$json.data.id,\n  message:$json.data.review_notes || \"Video generation failed.\"\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3340,
+        160
+      ],
+      "id": "17",
+      "name": "Generation Failed"
     }
   ],
   "connections": {
@@ -319,7 +450,7 @@
       "main": [
         [
           {
-            "node": "Human Review Gate",
+            "node": "Generate Video",
             "type": "main",
             "index": 0
           }
@@ -332,6 +463,75 @@
           }
         ]
       ]
+    },
+    "Generate Video": {
+      "main": [
+        [
+          {
+            "node": "Wait for Render",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Render": {
+      "main": [
+        [
+          {
+            "node": "Sync Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Generation": {
+      "main": [
+        [
+          {
+            "node": "Generation Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generation Ready?": {
+      "main": [
+        [
+          {
+            "node": "Human Review Gate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generation Failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generation Failed?": {
+      "main": [
+        [
+          {
+            "node": "Generation Failed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Render",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -339,7 +539,7 @@
   },
   "active": false,
   "pinData": {},
-  "versionId": "moneytube-editorial-v1",
+  "versionId": "moneytube-editorial-v1.1",
   "meta": {
     "templateCredsSetupCompleted": true
   },
