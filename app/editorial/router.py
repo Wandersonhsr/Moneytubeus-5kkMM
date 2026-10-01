@@ -1,0 +1,167 @@
+from __future__ import annotations
+
+from typing import Any
+
+from fastapi import Depends, HTTPException
+from pydantic import BaseModel, Field
+
+from app.controllers import base
+from app.controllers.v1.base import new_router
+
+from .pipeline import (
+    EditorialError,
+    attach_research,
+    attach_script,
+    collect_research,
+    create_episode,
+    generate,
+    learning_snapshot,
+    load_channels,
+    publish,
+    record_metrics,
+    review,
+    sync_generation,
+)
+from .store import store
+
+router = new_router(dependencies=[Depends(base.verify_token)])
+router.prefix += "/editorial"
+router.tags = ["editorial"]
+
+
+class EpisodeCreate(BaseModel):
+    channel: str
+    title: str
+    topic: str
+    pillar: str = ""
+    hook: str = ""
+
+
+class ResearchAttach(BaseModel):
+    sources: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class ScriptAttach(BaseModel):
+    script: str
+    description: str
+    tags: list[str] = Field(default_factory=list)
+
+
+class ReviewRequest(BaseModel):
+    approved: bool
+    notes: str = ""
+
+
+class MetricsRequest(BaseModel):
+    metrics: dict[str, Any] = Field(default_factory=dict)
+
+
+class PublishRequest(BaseModel):
+    privacy_status: str = "unlisted"
+
+
+def _ok(data: Any) -> dict[str, Any]:
+    return {"status": 200, "message": "success", "data": data}
+
+
+def _fail(exc: Exception):
+    raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/channels")
+def get_channels():
+    return _ok(load_channels())
+
+
+@router.get("/episodes")
+def get_episodes(channel: str | None = None, state: str | None = None):
+    return _ok(store.list(channel=channel, state=state))
+
+
+@router.get("/insights")
+def get_insights(channel: str | None = None):
+    return _ok(learning_snapshot(channel))
+
+
+@router.post("/episodes")
+def post_episode(body: EpisodeCreate):
+    try:
+        return _ok(create_episode(**body.model_dump()))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.get("/episodes/{episode_id}")
+def get_episode(episode_id: str):
+    episode = store.get(episode_id)
+    if not episode:
+        raise HTTPException(status_code=404, detail="episode not found")
+    return _ok(episode)
+
+
+@router.post("/episodes/{episode_id}/research/collect")
+def post_research_collect(episode_id: str):
+    try:
+        return _ok(collect_research(episode_id))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/research")
+def post_research(episode_id: str, body: ResearchAttach):
+    try:
+        return _ok(attach_research(episode_id, body.sources))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/script")
+def post_script(episode_id: str, body: ScriptAttach):
+    try:
+        return _ok(
+            attach_script(
+                episode_id, body.script, body.description, body.tags
+            )
+        )
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/generate")
+def post_generate(episode_id: str):
+    try:
+        return _ok(generate(episode_id))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/sync")
+def post_sync(episode_id: str):
+    try:
+        return _ok(sync_generation(episode_id))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/review")
+def post_review(episode_id: str, body: ReviewRequest):
+    try:
+        return _ok(review(episode_id, body.approved, body.notes))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/publish")
+def post_publish(episode_id: str, body: PublishRequest):
+    try:
+        return _ok(publish(episode_id, body.privacy_status))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/metrics")
+def post_metrics(episode_id: str, body: MetricsRequest):
+    try:
+        return _ok(record_metrics(episode_id, body.metrics))
+    except EditorialError as exc:
+        _fail(exc)
