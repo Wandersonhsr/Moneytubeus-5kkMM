@@ -1,0 +1,170 @@
+{
+  "generated_at": "2026-10-01",
+  "rule": "Topics are candidates only. Every episode must be freshly researched before scripting; dates and numbers are not treated as permanent facts.",
+  "channels": {
+    "nexbrain": [
+      {
+        "title": "Gemini 4 Argon: The Model Google Built for Long-Horizon Work",
+        "pillar": "AI breakthroughs",
+        "priority": "high",
+        "sources": [
+          "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/"
+        ]
+      },
+      {
+        "title": "Google Is Testing AI Compute in Orbit — What Has to Work First?",
+        "pillar": "AI infrastructure",
+        "priority": "high",
+        "sources": [
+          "https://blog.google/innovation-and-ai/models-and-research/google-research/google-project-suncatcher-facts/"
+        ]
+      },
+      {
+        "title": "Microsoft Copilot Is Becoming an Operating System for Work",
+        "pillar": "future of work",
+        "priority": "high",
+        "sources": [
+          "https://www.theverge.com/tech/1003365/microsoft-copilot-os-for-work-notepad"
+        ]
+      },
+      {
+        "title": "When AI Agents Start Acting on the Internet",
+        "pillar": "automation",
+        "priority": "high",
+        "sources": [
+          "https://www.washingtonpost.com/technology/2026/09/30/openais-ai-agents-attempted-hack-canadian-government-website/"
+        ]
+      },
+      {
+        "title": "The Missing Science of Evaluating AI Agents",
+        "pillar": "AI breakthroughs",
+        "priority": "high",
+        "sources": [
+          "https://www.microsoft.com/en-us/research/event/advancing-the-science-of-ai-agent-evaluation/"
+        ]
+      },
+      {
+        "title": "AI Is Moving From Chat to Always-On Agents",
+        "pillar": "automation",
+        "priority": "high",
+        "sources": [
+          "https://www.reuters.com/technology/microsoft-revamps-copilot-with-code-generation-agentic-ai-tools-2026-09-25/"
+        ]
+      },
+      {
+        "title": "Why AI Infrastructure Is Becoming an Energy Story",
+        "pillar": "future of work",
+        "priority": "normal",
+        "sources": [
+          "https://www.imf.org/en/news/articles/2026/09/20/sp091926-europe-and-global-ai-race"
+        ]
+      },
+      {
+        "title": "The New AI Race Is About Permissions, Not Prompts",
+        "pillar": "automation",
+        "priority": "normal",
+        "sources": [
+          "https://www.microsoft.com/en-us/research/event/advancing-the-science-of-ai-agent-evaluation/"
+        ]
+      },
+      {
+        "title": "AI Coding Is Becoming a Product, Not Just a Feature",
+        "pillar": "AI tools and workflows",
+        "priority": "normal",
+        "sources": [
+          "https://www.reuters.com/technology/microsoft-revamps-copilot-with-code-generation-agentic-ai-tools-2026-09-25/"
+        ]
+      },
+      {
+        "title": "What Happens When AI Becomes Part of the Company Org Chart?",
+        "pillar": "future of work",
+        "priority": "normal",
+        "sources": [
+          "https://www.theverge.com/tech/1003365/microsoft-copilot-os-for-work-notepad"
+        ]
+      }
+    ],
+    "capital-signal": [
+      {
+        "title": "The Fed Just Raised Rates Again: What the Mechanism Actually Is",
+        "pillar": "macro signals",
+        "priority": "high",
+        "sources": [
+          "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm"
+        ]
+      },
+      {
+        "title": "The September Jobs Report Is the Next Major Economic Signal",
+        "pillar": "macro signals",
+        "priority": "high",
+        "sources": [
+          "https://www.bls.gov/schedule/2026/"
+        ]
+      },
+      {
+        "title": "Why the October CPI Release Matters to the Rate Path",
+        "pillar": "macro signals",
+        "priority": "high",
+        "sources": [
+          "https://www.bls.gov/schedule/2026/"
+        ]
+      },
+      {
+        "title": "AI Investment Is Becoming a Macro-Economic Shock",
+        "pillar": "macro signals",
+        "priority": "high",
+        "sources": [
+          "https://www.imf.org/en/news/articles/2026/09/20/sp091926-europe-and-global-ai-race"
+        ]
+      },
+      {
+        "title": "The Labor Market Looks Stronger in Some Places Than the Headline Suggests",
+        "pillar": "macro signals",
+        "priority": "high",
+        "sources": [
+          "https://www.bls.gov/news.release/archives/empsit_09042026.htm"
+        ]
+      },
+      {
+        "title": "Real Wages: Why Nominal Pay Can Mislead You",
+        "pillar": "behavioral finance",
+        "priority": "high",
+        "sources": [
+          "https://www.bls.gov/news.release/realer.nr0.htm"
+        ]
+      },
+      {
+        "title": "AI Spending, Energy Demand and Inflation: The Feedback Loop",
+        "pillar": "macro signals",
+        "priority": "high",
+        "sources": [
+          "https://www.imf.org/en/news/articles/2026/09/20/sp091926-europe-and-global-ai-race"
+        ]
+      },
+      {
+        "title": "Microsoft’s New Reporting Structure Reveals Where AI Investment Is Going",
+        "pillar": "business economics",
+        "priority": "high",
+        "sources": [
+          "https://www.sec.gov/Archives/edgar/data/789019/000119312526380280/d291965d8k.htm"
+        ]
+      },
+      {
+        "title": "What the Fed’s Latest Projections Say About the Next Cycle",
+        "pillar": "macro signals",
+        "priority": "normal",
+        "sources": [
+          "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm"
+        ]
+      },
+      {
+        "title": "The AI Investment Boom Is Also an Infrastructure Bet",
+        "pillar": "market structure",
+        "priority": "normal",
+        "sources": [
+          "https://www.imf.org/annual-report/2026/in-focus/ai-deployment-and-disruption/"
+        ]
+      }
+    ]
+  }
+}
