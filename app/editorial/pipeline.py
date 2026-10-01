@@ -87,6 +87,9 @@ def create_episode(
         "published_urls": [],
         "publish_results": [],
         "metrics": {},
+        "opportunity": {},
+        "content_package": {},
+        "qa": {},
         "created_at": utcnow(),
         "updated_at": utcnow(),
     }
@@ -136,6 +139,40 @@ def attach_script(
         {"script": script, "description": description, "tags": tags or []}
     )
     return transition(episode, "scripted")
+
+
+def attach_package(episode_id: str, package: dict[str, Any]) -> dict:
+    episode = store.get(episode_id)
+    if not episode:
+        raise EditorialError("episode not found")
+    if episode["state"] != "researched":
+        raise EditorialError("research must be completed before content packaging")
+    if not package.get("script") or not package.get("description"):
+        raise EditorialError("content package must contain script and description")
+    episode.update(
+        {
+            "title": package.get("title") or episode["title"],
+            "hook": package.get("hook") or episode.get("hook", ""),
+            "script": package["script"],
+            "description": package["description"],
+            "tags": package.get("tags", []),
+            "content_package": package,
+            "qa": package.get("qa", {}),
+        }
+    )
+    return transition(episode, "scripted")
+
+
+def attach_opportunity(episode_id: str, opportunity: dict[str, Any]) -> dict:
+    episode = store.get(episode_id)
+    if not episode:
+        raise EditorialError("episode not found")
+    episode["opportunity"] = opportunity
+    episode["title"] = opportunity.get("title") or episode["title"]
+    episode["topic"] = opportunity.get("topic") or episode["topic"]
+    episode["hook"] = opportunity.get("hook") or episode.get("hook", "")
+    episode["updated_at"] = utcnow()
+    return store.save(episode)
 
 
 def generate(episode_id: str) -> dict:
