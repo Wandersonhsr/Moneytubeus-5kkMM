@@ -3,8 +3,8 @@ from __future__ import annotations
 import hashlib
 import re
 from datetime import datetime, timezone
-from urllib.parse import urlparse
 from typing import Any
+from urllib.parse import urlparse
 
 from .pipeline import load_channels
 
