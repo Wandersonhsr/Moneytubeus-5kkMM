@@ -314,7 +314,7 @@ def learning_snapshot(channel: str | None = None) -> dict[str, Any]:
             if len(measured) < 5
             else "Compare pillars, hooks, duration and publish windows before changing templates."
         ),
-    }def publish(episode_id: str) -> dict:
+    }\n\n\ndef publish(episode_id: str) -> dict:
     """Upload the approved episode to YouTube as PRIVATE only."""
     episode = store.get(episode_id)
     if not episode:
