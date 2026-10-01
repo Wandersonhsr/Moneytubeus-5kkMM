@@ -142,7 +142,7 @@ def build_opportunities(
         summary = str(source.get("summary", "")).strip()
         ranked.append(
             {
-                "opportunity_id": f"opp_{hashlib.sha1(key.encode("utf-8")).hexdigest()[:10]}",
+                "opportunity_id": f"opp_{hashlib.sha1(key.encode('utf-8')).hexdigest()[:10]}",
                 "channel": channel_name,
                 "title": title,
                 "topic": title,
