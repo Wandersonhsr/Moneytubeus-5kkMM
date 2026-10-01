@@ -6,7 +6,7 @@ The existing MoneyPrinterTurbo fork remains the **media engine**. The editorial 
 
 Pipeline:
 
-idea -> researched -> scripted -> generated -> review -> approved -> published -> measured
+idea -> researched -> scripted -> generated -> review -> approved -> uploaded_private -> public_approved -> published -> measured
 
 rejected and failed are recovery states.
 
@@ -40,9 +40,9 @@ Capital Signal must separate documented facts, estimates and attributed interpre
 4. Sync: poll the engine state. A completed engine task moves the episode to review; it never auto-approves.
 5. Review: watch the actual rendered video and verify factual accuracy, sources, hook, pacing, audio, subtitles, visual relevance, title/thumbnail promise, description and synthetic-media disclosure.
 6. Approve: send explicit human approval. Bracket placeholders such as [SOURCES] block approval.
-7. Publish: the V1 adapter reuses the existing Upload-Post integration for YouTube. Default privacy is unlisted.
-8. Measure: ingest views, likes, comments, impressions, CTR, average view duration, watch time, retention and subscribers gained.
-9. Learn: use the insights endpoint to compare measured performance. Do not change channel rules from a single outlier; wait for at least five measured episodes.
+7. Private upload: the V1 adapter reuses the existing Upload-Post integration for YouTube and forces privacyStatus=private. This is the only automated YouTube upload step.
+8. Final public gate: after the private upload, a human explicitly approves public release. The public transition itself remains a separate human action; the system records the resulting YouTube URL through mark-public.
+9. Measure: ingest views, likes, comments, impressions, CTR, average view duration, watch time, retention and subscribers gained. Then use the insights endpoint to compare measured performance. Do not change channel rules from a single outlier; wait for at least five measured episodes.
 
 ## API
 
@@ -60,5 +60,7 @@ All endpoints are under /api/v1/editorial and inherit the application's API-key 
 - POST /episodes/{id}/review
 - POST /episodes/{id}/publish
 - POST /episodes/{id}/metrics
+- POST /episodes/{id}/public-approve
+- POST /episodes/{id}/mark-public
 
 The metadata store uses SQLite under the application's existing storage/editorial directory, avoiding a new infrastructure dependency in V1.
