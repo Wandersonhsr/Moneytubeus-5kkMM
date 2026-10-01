@@ -210,7 +210,7 @@ def review(episode_id: str, approved: bool, notes: str = "") -> dict:
     if approved:
         if not episode.get("video_paths"):
             raise EditorialError("generated video is required before approval")
-        placeholder = re.compile(r"\[[A-Z][A-Z0-9 _-]{2,}\]")
+        placeholder = re.compile(r"\[[A-Za-z][A-Za-z0-9 _-]{2,}\]")
         if placeholder.search(episode["description"]) or placeholder.search(
             episode.get("script", "")
         ):
