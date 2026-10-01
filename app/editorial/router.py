@@ -22,6 +22,7 @@ from .pipeline import (
     attach_package,
     collect_research,
     create_episode,
+    dashboard_snapshot,
     generate,
     learning_snapshot,
     load_channels,
@@ -101,6 +102,10 @@ def get_episodes(channel: str | None = None, state: str | None = None):
 @router.get("/insights")
 def get_insights(channel: str | None = None):
     return _ok(learning_snapshot(channel))
+
+@router.get("/dashboard")
+def get_dashboard():
+    return _ok(dashboard_snapshot())
 
 
 @router.post("/opportunities")
