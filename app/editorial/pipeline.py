@@ -344,6 +344,42 @@ def record_metrics(episode_id: str, metrics: dict[str, Any]) -> dict:
     return store.save(episode)
 
 
+def dashboard_snapshot() -> dict[str, Any]:
+    episodes = store.list()
+    channels = load_channels()
+    by_state: dict[str, int] = {}
+    by_channel: dict[str, int] = {}
+    for episode in episodes:
+        by_state[episode["state"]] = by_state.get(episode["state"], 0) + 1
+        by_channel[episode["channel"]] = by_channel.get(episode["channel"], 0) + 1
+
+    queue = [
+        {
+            "id": episode["id"],
+            "channel": episode["channel"],
+            "title": episode["title"],
+            "state": episode["state"],
+            "qa_passed": bool(episode.get("qa", {}).get("passed")),
+            "updated_at": episode["updated_at"],
+        }
+        for episode in episodes[:20]
+    ]
+    return {
+        "channels": list(channels.keys()),
+        "totals": {
+            "episodes": len(episodes),
+            "by_state": by_state,
+            "by_channel": by_channel,
+        },
+        "human_gates": {
+            "production_approval_required": True,
+            "public_approval_required": True,
+            "public_auto_publish": False,
+        },
+        "queue": queue,
+    }
+
+
 def learning_snapshot(channel: str | None = None) -> dict[str, Any]:
     episodes = store.list(channel=channel)
     measured = [e for e in episodes if e.get("metrics")]
