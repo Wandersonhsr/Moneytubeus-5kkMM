@@ -1,0 +1,347 @@
+{
+  "name": "MoneyTube Editorial Factory V1",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 7,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1",
+      "name": "Daily Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  { json: { channel: \"nexbrain\", limit: 5 } },\n  { json: { channel: \"capital-signal\", limit: 5 } }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "2",
+      "name": "Pilot Channels"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MONEYTUBE_BASE_URL}}/api/v1/editorial/opportunities?channel={{$json.channel}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.MONEYTUBE_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={\"limit\":{{$json.limit}}}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        0
+      ],
+      "id": "3",
+      "name": "Find Opportunities"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.data || [];\nconst top = Array.isArray(data) ? data[0] : null;\nif (!top) throw new Error(\"No editorial opportunity returned\");\nreturn [{json:{\n  channel: top.channel,\n  title: top.title,\n  topic: top.topic,\n  pillar: top.pillar || \"\",\n  hook: top.hook || \"\",\n  opportunity: top\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        0
+      ],
+      "id": "4",
+      "name": "Select Top Topic"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MONEYTUBE_BASE_URL}}/api/v1/editorial/episodes",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.MONEYTUBE_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={\"channel\":\"{{$json.channel}}\",\"title\":\"{{$json.title}}\",\"topic\":\"{{$json.topic}}\",\"pillar\":\"{{$json.pillar}}\",\"hook\":\"{{$json.hook}}\"}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        0
+      ],
+      "id": "5",
+      "name": "Create Episode"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MONEYTUBE_BASE_URL}}/api/v1/editorial/episodes/{{$json.data.id}}/research/collect",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.MONEYTUBE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        0
+      ],
+      "id": "6",
+      "name": "Collect Research"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MONEYTUBE_BASE_URL}}/api/v1/editorial/episodes/{{$json.data.id}}/package",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.MONEYTUBE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1420,
+        0
+      ],
+      "id": "7",
+      "name": "Generate Package"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.MONEYTUBE_BASE_URL}}/api/v1/editorial/episodes/{{$json.data.id}}/qa",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.MONEYTUBE_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1660,
+        0
+      ],
+      "id": "8",
+      "name": "Run QA"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.data.qa.passed}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1900,
+        0
+      ],
+      "id": "9",
+      "name": "QA Passed?"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{\n  status:\"READY_FOR_HUMAN_REVIEW\",\n  episode_id:$json.data.id,\n  title:$json.data.title,\n  state:$json.data.state,\n  next:\"Review video and metadata. Only after explicit approval may the system upload PRIVATE. A separate public approval remains mandatory.\"\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        -80
+      ],
+      "id": "10",
+      "name": "Human Review Gate"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{\n  status:\"QA_BLOCKED\",\n  episode_id:$json.data.id,\n  qa:$json.data.qa,\n  next:\"Fix the failing QA checks; do not upload.\"\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        100
+      ],
+      "id": "11",
+      "name": "QA Block"
+    }
+  ],
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Pilot Channels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pilot Channels": {
+      "main": [
+        [
+          {
+            "node": "Find Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Opportunities": {
+      "main": [
+        [
+          {
+            "node": "Select Top Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Top Topic": {
+      "main": [
+        [
+          {
+            "node": "Create Episode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Episode": {
+      "main": [
+        [
+          {
+            "node": "Collect Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Research": {
+      "main": [
+        [
+          {
+            "node": "Generate Package",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Package": {
+      "main": [
+        [
+          {
+            "node": "Run QA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run QA": {
+      "main": [
+        [
+          {
+            "node": "QA Passed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA Passed?": {
+      "main": [
+        [
+          {
+            "node": "Human Review Gate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "QA Block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {},
+  "versionId": "moneytube-editorial-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
