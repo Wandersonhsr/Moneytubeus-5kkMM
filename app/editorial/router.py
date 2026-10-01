@@ -158,7 +158,7 @@ def post_review(episode_id: str, body: ReviewRequest):
 
 
 @router.post("/episodes/{episode_id}/publish")
-def post_publish(episode_id: str, body: PublishRequest):
+def post_publish(episode_id: str):
     try:
         return _ok(publish(episode_id))
     except EditorialError as exc:
