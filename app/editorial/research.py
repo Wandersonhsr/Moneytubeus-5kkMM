@@ -68,4 +68,5 @@ def collect(topic: str, feeds: list[str], per_feed: int = 8) -> list[dict]:
         score = sum(1 for term in terms if term in text)
         ranked.append((score, item))
     ranked.sort(key=lambda pair: pair[0], reverse=True)
-    return [item for _, item in ranked[:20]]
+    matched = [item for score, item in ranked if score > 0]
+    return matched[:20] if matched else [item for _, item in ranked[:20]]
