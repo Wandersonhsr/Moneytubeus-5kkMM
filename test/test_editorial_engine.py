@@ -75,3 +75,16 @@ def test_content_engine_builds_full_package(monkeypatch):
     assert package["visual_beats"]
     assert package["thumbnail_brief"]
     assert package["qa"]["passed"] is True
+
+
+def test_dashboard_snapshot_exposes_human_gates(tmp_path, monkeypatch):
+    from app.editorial import pipeline
+    from app.editorial.store import EditorialStore
+
+    store = EditorialStore(str(tmp_path / "editorial.db"))
+    monkeypatch.setattr(pipeline, "store", store)
+    pipeline.create_episode("nexbrain", "Dashboard test", "AI agents")
+    snapshot = pipeline.dashboard_snapshot()
+    assert snapshot["totals"]["episodes"] == 1
+    assert snapshot["human_gates"]["public_auto_publish"] is False
+    assert snapshot["queue"][0]["state"] == "idea"
