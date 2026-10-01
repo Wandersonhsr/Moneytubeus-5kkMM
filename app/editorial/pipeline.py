@@ -18,7 +18,7 @@ from .store import store
 
 STATES = (
     "idea", "researched", "scripted", "generated", "review",
-    "approved", "published", "measured", "learning", "rejected", "failed",
+    "approved", "uploaded_private", "public_approved", "published", "measured", "learning", "rejected", "failed",
 )
 
 
