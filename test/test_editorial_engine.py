@@ -50,3 +50,28 @@ def test_qa_blocks_missing_summary_and_sources():
     checks = {item["check"]: item for item in qa["checks"]}
     assert checks["unique_summary_first_lines"]["passed"] is False
     assert checks["research_depth"]["passed"] is False
+
+
+def test_content_engine_builds_full_package(monkeypatch):
+    from app.editorial import content_engine
+
+    script = ("AI systems are changing how companies work. " * 140).strip()
+    monkeypatch.setattr(content_engine.llm, "generate_script", lambda **kwargs: script)
+    research = [
+        {"url": "https://blog.google/source", "title": "Google AI", "publisher": "blog.google", "summary": "Documented AI development.", "published_at": "2099-01-01T00:00:00+00:00"},
+        {"url": "https://microsoft.com/source", "title": "Microsoft AI", "publisher": "microsoft.com", "summary": "Documented agent development.", "published_at": "2099-01-01T00:00:00+00:00"},
+        {"url": "https://example.com/source", "title": "Research source", "publisher": "example.com", "summary": "Independent context.", "published_at": "2099-01-01T00:00:00+00:00"},
+    ]
+    package = content_engine.generate_package(
+        "nexbrain",
+        "AI Agents Are Changing How Companies Work",
+        "AI agents and enterprise automation",
+        research,
+        "The visible product is only the first layer.",
+    )
+    assert package["summary"]
+    assert package["description"].startswith(package["summary"])
+    assert len(package["title_variants"]) == 5
+    assert package["visual_beats"]
+    assert package["thumbnail_brief"]
+    assert package["qa"]["passed"] is True
