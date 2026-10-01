@@ -201,7 +201,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return [{json:{\n  status:\"READY_FOR_HUMAN_REVIEW\",\n  episode_id:$json.data.id,\n  title:$json.data.title,\n  state:$json.data.state,\n  next:\"Review video and metadata. Only after explicit approval may the system upload PRIVATE. A separate public approval remains mandatory.\"\n}}];"
+        "jsCode": "return [{json:{\n  status:\"READY_FOR_HUMAN_REVIEW\",\n  episode_id:$json.data.episode.id,\n  title:$json.data.title,\n  state:$json.data.state,\n  next:\"Review video and metadata. Only after explicit approval may the system upload PRIVATE. A separate public approval remains mandatory.\"\n}}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
