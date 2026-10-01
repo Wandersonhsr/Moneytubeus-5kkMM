@@ -314,4 +314,121 @@ def learning_snapshot(channel: str | None = None) -> dict[str, Any]:
             if len(measured) < 5
             else "Compare pillars, hooks, duration and publish windows before changing templates."
         ),
+    }def publish(episode_id: str) -> dict:
+    """Upload the approved episode to YouTube as PRIVATE only."""
+    episode = store.get(episode_id)
+    if not episode:
+        raise EditorialError("episode not found")
+    if episode["state"] != "approved" or not episode.get("publish_approved"):
+        raise EditorialError("human approval is required before private upload")
+    if not episode.get("video_paths"):
+        raise EditorialError("no generated video available")
+
+    results = []
+    for video_path in episode["video_paths"]:
+        results.append(
+            upload_post.cross_post_video(
+                video_path=video_path,
+                title=episode["title"],
+                platforms=["youtube"],
+                youtube_extra={
+                    "youtube_title": episode["title"],
+                    "youtube_description": episode["description"],
+                    "tags": episode.get("tags", []),
+                    "privacyStatus": "private",
+                    "containsSyntheticMedia": True,
+                },
+            )
+        )
+
+    episode["publish_results"] = results
+    episode["published_urls"] = [
+        r.get("url") or r.get("video_url")
+        for r in results
+        if isinstance(r, dict) and (r.get("url") or r.get("video_url"))
+    ]
+    if any(not r.get("success") for r in results if isinstance(r, dict)):
+        episode["review_notes"] = (
+            "Private upload returned one or more failures: "
+            + json.dumps(results, ensure_ascii=False)
+        )
+        episode["state"] = "failed"
+    else:
+        episode["state"] = "uploaded_private"
+    episode["updated_at"] = utcnow()
+    return store.save(episode)
+
+
+def approve_public(episode_id: str, notes: str = "") -> dict:
+    episode = store.get(episode_id)
+    if not episode:
+        raise EditorialError("episode not found")
+    if episode["state"] != "uploaded_private":
+        raise EditorialError("episode must be privately uploaded before public approval")
+    episode["public_publish_approved"] = True
+    episode["review_notes"] = notes
+    return transition(episode, "public_approved")
+
+
+def mark_public(episode_id: str, youtube_url: str) -> dict:
+    episode = store.get(episode_id)
+    if not episode:
+        raise EditorialError("episode not found")
+    if episode["state"] != "public_approved" or not episode.get("public_publish_approved"):
+        raise EditorialError("final public approval is required before marking published")
+    if not youtube_url.strip():
+        raise EditorialError("YouTube URL is required")
+    episode["published_urls"] = [youtube_url.strip()]
+    episode["state"] = "published"
+    episode["updated_at"] = utcnow()
+    return store.save(episode)
+
+
+def record_metrics(episode_id: str, metrics: dict[str, Any]) -> dict:
+    episode = store.get(episode_id)
+    if not episode:
+        raise EditorialError("episode not found")
+    episode["metrics"] = {
+        **episode.get("metrics", {}),
+        **metrics,
+        "updated_at": utcnow(),
+    }
+    if episode["state"] in {"published", "measured", "learning"}:
+        episode["state"] = "measured"
+    episode["updated_at"] = utcnow()
+    return store.save(episode)
+
+
+def learning_snapshot(channel: str | None = None) -> dict[str, Any]:
+    episodes = store.list(channel=channel)
+    measured = [e for e in episodes if e.get("metrics")]
+
+    def avg(key: str) -> float | None:
+        values = [
+            float(e["metrics"][key])
+            for e in measured
+            if isinstance(e.get("metrics", {}).get(key), (int, float))
+        ]
+        return round(sum(values) / len(values), 3) if values else None
+
+    return {
+        "channel": channel,
+        "episodes": len(episodes),
+        "measured_episodes": len(measured),
+        "averages": {
+            "views": avg("views"),
+            "likes": avg("likes"),
+            "comments": avg("comments"),
+            "impressions": avg("impressions"),
+            "ctr": avg("ctr"),
+            "average_view_duration_seconds": avg("average_view_duration_seconds"),
+            "watch_time_minutes": avg("watch_time_minutes"),
+            "retention": avg("retention"),
+            "subscribers_gained": avg("subscribers_gained"),
+        },
+        "next_action": (
+            "Collect at least five measured episodes before changing channel-level rules."
+            if len(measured) < 5
+            else "Compare pillars, hooks, duration and publish windows before changing templates."
+        ),
     }
