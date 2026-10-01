@@ -4,17 +4,16 @@ from app.editorial import pipeline
 from app.editorial.store import EditorialStore
 
 
-def _episode(store: EditorialStore) -> dict:
-    episode = pipeline.create_episode(
+def _episode(store: EditorialStore, monkeypatch) -> dict:
+    monkeypatch.setattr(pipeline, "store", store)
+    return pipeline.create_episode(
         "nexbrain", "Test episode", "AI workflow", "AI tools"
     )
-    pipeline.store = store
-    return store.get(episode["id"])
 
 
-def test_editorial_state_gate_and_approval(tmp_path):
+def test_editorial_state_gate_and_approval(tmp_path, monkeypatch):
     store = EditorialStore(str(tmp_path / "editorial.db"))
-    episode = _episode(store)
+    episode = _episode(store, monkeypatch)
 
     pipeline.attach_research(
         episode["id"],
@@ -37,9 +36,9 @@ def test_editorial_state_gate_and_approval(tmp_path):
     assert store.get(episode["id"])["publish_approved"] is True
 
 
-def test_placeholder_blocks_approval(tmp_path):
+def test_placeholder_blocks_approval(tmp_path, monkeypatch):
     store = EditorialStore(str(tmp_path / "editorial.db"))
-    episode = _episode(store)
+    episode = _episode(store, monkeypatch)
     episode["state"] = "review"
     episode["video_paths"] = ["/tmp/video.mp4"]
     episode["description"] = "Summary [SOURCES]"
@@ -53,9 +52,9 @@ def test_placeholder_blocks_approval(tmp_path):
         raise AssertionError("placeholder should block approval")
 
 
-def test_learning_snapshot(tmp_path):
+def test_learning_snapshot(tmp_path, monkeypatch):
     store = EditorialStore(str(tmp_path / "editorial.db"))
-    episode = _episode(store)
+    episode = _episode(store, monkeypatch)
     episode["state"] = "published"
     episode["metrics"] = {"views": 1000, "ctr": 5.0}
     store.save(episode)
