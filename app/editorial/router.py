@@ -8,12 +8,18 @@ from pydantic import BaseModel, Field
 from app.controllers import base
 from app.controllers.v1.base import new_router
 
+from .agent import build_opportunities
+from .content_engine import generate_package
+from .qa import run_package_qa
+from .research import collect
 from .pipeline import (
     EditorialError,
     attach_research,
     attach_script,
     approve_public,
     mark_public,
+    attach_opportunity,
+    attach_package,
     collect_research,
     create_episode,
     generate,
@@ -66,6 +72,14 @@ class PublicMarkRequest(BaseModel):
     youtube_url: str
 
 
+class OpportunityRequest(BaseModel):
+    limit: int = Field(default=10, ge=1, le=50)
+
+
+class PackageRequest(BaseModel):
+    title: str | None = None
+
+
 def _ok(data: Any) -> dict[str, Any]:
     return {"status": 200, "message": "success", "data": data}
 
@@ -87,6 +101,58 @@ def get_episodes(channel: str | None = None, state: str | None = None):
 @router.get("/insights")
 def get_insights(channel: str | None = None):
     return _ok(learning_snapshot(channel))
+
+
+@router.post("/opportunities")
+def post_opportunities(channel: str, body: OpportunityRequest):
+    try:
+        channels = load_channels()
+        if channel not in channels:
+            raise EditorialError(f"unknown channel: {channel}")
+        sources = collect("", channels[channel].get("research_feeds", []))
+        return _ok(build_opportunities(channel, sources, body.limit))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/opportunity")
+def post_opportunity(episode_id: str, opportunity: dict[str, Any]):
+    try:
+        return _ok(attach_opportunity(episode_id, opportunity))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/package")
+def post_package(episode_id: str, body: PackageRequest | None = None):
+    try:
+        episode = store.get(episode_id)
+        if not episode:
+            raise EditorialError("episode not found")
+        title = (body.title if body else None) or episode["title"]
+        package = generate_package(
+            channel_name=episode["channel"],
+            title=title,
+            topic=episode["topic"],
+            research=episode.get("research", []),
+            hook=episode.get("hook", ""),
+        )
+        return _ok(attach_package(episode_id, package))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/qa")
+def post_qa(episode_id: str):
+    try:
+        episode = store.get(episode_id)
+        if not episode:
+            raise EditorialError("episode not found")
+        channel = load_channels()[episode["channel"]]
+        return _ok(run_package_qa(episode, channel, episode.get("content_package") or episode))
+    except EditorialError as exc:
+        _fail(exc)
+
 
 
 @router.post("/episodes")
