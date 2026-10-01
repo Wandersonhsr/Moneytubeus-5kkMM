@@ -139,7 +139,6 @@ def build_opportunities(
         seen.add(key)
         scoring = score_source(source, channel)
         title = str(source.get("title", "")).strip()
-        summary = str(source.get("summary", "")).strip()
         ranked.append(
             {
                 "opportunity_id": f"opp_{hashlib.sha1(key.encode('utf-8')).hexdigest()[:10]}",
