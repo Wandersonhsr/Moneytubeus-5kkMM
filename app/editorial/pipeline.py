@@ -13,8 +13,6 @@ from app.models.schema import VideoParams
 from app.services import state as sm
 from app.services import task as tm
 from app.services import upload_post
-from app.utils import utils
-
 from .research import collect
 from .store import store
 
