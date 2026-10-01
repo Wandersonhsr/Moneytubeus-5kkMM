@@ -98,7 +98,7 @@ def run_package_qa(
         checks.append(_result("finance_language", True, "info", "not applicable"))
 
     errors = [item for item in checks if not item["passed"] and item["severity"] == "error"]
-    warnings = [item for item in checks if not item["passed" ] and item["severity"] != "error"]
+    warnings = [item for item in checks if not item["passed"] and item["severity"] != "error"]
     return {
         "passed": not errors,
         "errors": errors,
