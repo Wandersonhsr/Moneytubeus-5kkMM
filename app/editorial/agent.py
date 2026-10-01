@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import math
+import hashlib
 import re
 from datetime import datetime, timezone
 from urllib.parse import urlparse
@@ -142,7 +142,7 @@ def build_opportunities(
         summary = str(source.get("summary", "")).strip()
         ranked.append(
             {
-                "opportunity_id": f"opp_{abs(hash(key)) % 10**10:010d}",
+                "opportunity_id": f"opp_{hashlib.sha1(key.encode("utf-8")).hexdigest()[:10]}",
                 "channel": channel_name,
                 "title": title,
                 "topic": title,
