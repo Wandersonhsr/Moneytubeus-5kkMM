@@ -149,7 +149,8 @@ def post_qa(episode_id: str):
         if not episode:
             raise EditorialError("episode not found")
         channel = load_channels()[episode["channel"]]
-        return _ok(run_package_qa(episode, channel, episode.get("content_package") or episode))
+        qa = run_package_qa(episode, channel, episode.get("content_package") or episode)
+        return _ok({"episode": episode, "qa": qa})
     except EditorialError as exc:
         _fail(exc)
 
