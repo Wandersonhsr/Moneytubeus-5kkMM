@@ -119,7 +119,7 @@ def collect_research(episode_id: str) -> dict:
     if not episode:
         raise EditorialError("episode not found")
     channel = load_channels()[episode["channel"]]
-    sources = collect(episode["topic"], channel.get("research_feeds", []))
+    sources = collect(episode["topic"], channel.get("research_feeds", []))[:8]
     if not sources:
         raise EditorialError("no research sources were collected")
     return attach_research(episode_id, sources)
