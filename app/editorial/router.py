@@ -12,6 +12,8 @@ from .pipeline import (
     EditorialError,
     attach_research,
     attach_script,
+    approve_public,
+    mark_public,
     collect_research,
     create_episode,
     generate,
@@ -56,8 +58,12 @@ class MetricsRequest(BaseModel):
     metrics: dict[str, Any] = Field(default_factory=dict)
 
 
-class PublishRequest(BaseModel):
-    privacy_status: str = "unlisted"
+class PublicApprovalRequest(BaseModel):
+    notes: str = ""
+
+
+class PublicMarkRequest(BaseModel):
+    youtube_url: str
 
 
 def _ok(data: Any) -> dict[str, Any]:
@@ -154,7 +160,7 @@ def post_review(episode_id: str, body: ReviewRequest):
 @router.post("/episodes/{episode_id}/publish")
 def post_publish(episode_id: str, body: PublishRequest):
     try:
-        return _ok(publish(episode_id, body.privacy_status))
+        return _ok(publish(episode_id))
     except EditorialError as exc:
         _fail(exc)
 
@@ -163,5 +169,21 @@ def post_publish(episode_id: str, body: PublishRequest):
 def post_metrics(episode_id: str, body: MetricsRequest):
     try:
         return _ok(record_metrics(episode_id, body.metrics))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/public-approve")
+def post_public_approve(episode_id: str, body: PublicApprovalRequest):
+    try:
+        return _ok(approve_public(episode_id, body.notes))
+    except EditorialError as exc:
+        _fail(exc)
+
+
+@router.post("/episodes/{episode_id}/mark-public")
+def post_mark_public(episode_id: str, body: PublicMarkRequest):
+    try:
+        return _ok(mark_public(episode_id, body.youtube_url))
     except EditorialError as exc:
         _fail(exc)
