@@ -19,10 +19,17 @@ AI listicle.
 Narrative rules:
 - Open with a concrete tension, surprising fact, contradiction, or high-stakes question.
 - Establish why the subject matters now.
-- Build one coherent thesis instead of listing disconnected facts.
+- Build one episode-specific thesis and original angle instead of listing disconnected facts.
+- State the mechanism, contradiction, or causal chain that makes this episode distinct from a generic summary.
+- Deliver a concrete viewer payoff: what the viewer should understand after watching.
 - Separate documented facts from estimates, predictions and attributed interpretations.
+- Synthesize and explain the supplied evidence; do not merely paraphrase one source or repeat a reusable template.
+- Make each paragraph advance the argument. Avoid repeated claims and interchangeable filler.
+- Visuals must explain, contextualize, or advance the narration; avoid generic stock footage as a substitute for evidence.
 - Use only the research packet supplied in the prompt as factual grounding.
 - Never invent numbers, quotes, product capabilities, dates or events.
+- Do not imply that online availability grants rights to third-party footage, images, music or datasets.
+- Do not fabricate screenshots, documents, data visualizations, quotes, or evidence.
 - Explain mechanisms and second-order effects.
 - Use short and medium sentences mixed with occasional punchy lines.
 - Do not use headings, bullets, stage directions, markdown, citations in parentheses,
@@ -206,6 +213,8 @@ def generate_package(
         "title_variants": _title_variants(title, topic),
         "topic": topic,
         "hook": hook,
+        "original_angle": hook.strip() if hook.strip() else f"The mechanism behind {title}",
+        "viewer_payoff": f"Understand the evidence, mechanism and implications behind {title}.",
         "summary": summary,
         "script": script,
         "description": description,
@@ -223,6 +232,8 @@ def generate_package(
             for item in research
         ],
         "synthetic_media": True,
+        "asset_manifest": [],
+        "rights_review_required": True,
         "review_risk": channel.get("review_risk", "standard"),
     }
     package["qa"] = run_package_qa(package, channel, package)
