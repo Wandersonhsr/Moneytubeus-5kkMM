@@ -32,6 +32,10 @@ def run_package_qa(
     tags = package.get("tags", episode.get("tags", [])) or []
     research = package.get("research", episode.get("research", [])) or []
     summary = str(package.get("summary", "")).strip()
+    original_angle = str(package.get("original_angle", "")).strip()
+    viewer_payoff = str(package.get("viewer_payoff", "")).strip()
+    visual_beats = package.get("visual_beats", []) or []
+    assets = package.get("assets", package.get("visual_assets", [])) or []
     risk = channel.get("review_risk", "standard")
 
     checks = []
@@ -49,6 +53,22 @@ def run_package_qa(
         )
     )
     checks.append(_result("description_present", bool(description), detail="description is required"))
+    checks.append(
+        _result(
+            "original_editorial_angle",
+            bool(original_angle),
+            "error",
+            "record the episode-specific thesis/angle; a topic restatement is insufficient",
+        )
+    )
+    checks.append(
+        _result(
+            "viewer_payoff",
+            bool(viewer_payoff),
+            "error",
+            "state what the viewer will understand or be able to explain after watching",
+        )
+    )
     checks.append(
         _result(
             "unique_summary_first_lines",
@@ -78,6 +98,63 @@ def run_package_qa(
             detail="every research item must contain a source URL",
         )
     )
+    domains = {
+        re.sub(r"^www\\.", "", __import__("urllib.parse", fromlist=["urlparse"]).urlparse(str(item.get("url", ""))).netloc.lower())
+        for item in research
+        if str(item.get("url", "")).startswith(("http://", "https://"))
+    }
+    checks.append(
+        _result(
+            "source_diversity",
+            len(domains) >= min(2, min_sources),
+            "warning",
+            f"{len(domains)} distinct source domains; use independent sources where available",
+        )
+    )
+    paragraphs = [
+        re.sub(r"\\W+", " ", item.lower()).strip()
+        for item in re.split(r"\\n\\s*\\n", script)
+        if item.strip()
+    ]
+    duplicate_paragraphs = len(paragraphs) != len(set(paragraphs))
+    checks.append(
+        _result(
+            "duplicate_paragraphs",
+            not duplicate_paragraphs,
+            "error",
+            "script contains exact repeated paragraphs",
+        )
+    )
+    checks.append(
+        _result(
+            "visual_storytelling",
+            len(visual_beats) >= 3,
+            "warning",
+            f"{len(visual_beats)} visual beats; visuals should advance or explain the narrative",
+        )
+    )
+    if assets:
+        missing_rights = [
+            item for item in assets
+            if not (item.get("rights_status") or item.get("license") or item.get("source_url"))
+        ]
+        checks.append(
+            _result(
+                "asset_provenance",
+                not missing_rights,
+                "error",
+                f"{len(missing_rights)} assets lack rights/license/source provenance",
+            )
+        )
+    else:
+        checks.append(
+            _result(
+                "asset_provenance",
+                False,
+                "warning",
+                "no asset manifest supplied; verify stock footage, music, images and third-party clips before approval",
+            )
+        )
     checks.append(
         _result(
             "metadata_tags",
