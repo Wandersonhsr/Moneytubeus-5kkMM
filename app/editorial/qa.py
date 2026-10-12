@@ -52,6 +52,8 @@ def run_package_qa(
     thumbnail_brief = package.get("thumbnail_brief", {}) or []
     synthetic_media = bool(package.get("synthetic_media", False))
     disclosure_reviewed = bool(package.get("synthetic_media_disclosure_reviewed", False))
+    shopping = package.get("shopping", {}) or {}
+    product_candidates = shopping.get("product_candidates", []) or []
     risk = channel.get("review_risk", "standard")
 
     checks = []
@@ -171,6 +173,39 @@ def run_package_qa(
             "review whether realistic altered/synthetic content requires platform disclosure",
         )
     )
+    if product_candidates:
+        invalid_products = [
+            product for product in product_candidates
+            if not product.get("name")
+            or not str(product.get("product_url", "")).startswith(("http://", "https://"))
+            or not product.get("episode_relevance")
+            or not product.get("offer_verified_at")
+        ]
+        checks.append(
+            _result(
+                "shopping_product_evidence",
+                not invalid_products,
+                "error",
+                f"{len(invalid_products)} product candidates lack identity, URL, episode relevance or offer verification date",
+            )
+        )
+        checks.append(
+            _result(
+                "shopping_eligibility_and_tagging",
+                bool(shopping.get("eligibility_verified_in_studio"))
+                and shopping.get("product_tagging_status") in {"tagged", "reviewed"},
+                "warning",
+                "confirm channel eligibility and product tags in YouTube Studio; automated QA cannot verify native Shopping enrollment",
+            )
+        )
+        checks.append(
+            _result(
+                "shopping_disclosure",
+                bool(shopping.get("disclosure_reviewed")),
+                "warning",
+                "review applicable affiliate, sponsorship and paid-promotion disclosure requirements",
+            )
+        )
     if assets:
         missing_rights = [
             item for item in assets
