@@ -66,3 +66,8 @@ All endpoints are under /api/v1/editorial and inherit the application's API-key 
 - POST /episodes/{id}/mark-public
 
 The metadata store uses SQLite under the application's existing storage/editorial directory, avoiding a new infrastructure dependency in V1.
+
+
+## Optional Shopping revenue lane
+
+For every researched episode, evaluate whether a product recommendation would genuinely help the target viewer. This is an optional fit check, not a quota. If relevant, prepare a product brief with product identity, seller URL, evidence/offer verification date, audience fit, script placement, commission data when visible, and disclosure notes. Confirm eligibility in YouTube Studio before native YouTube Shopping tagging. Keep native Shopping affiliate links on YouTube; do not redistribute them externally. Record product clicks, orders, commissions and reversals when available. Never invent offer details, imply unperformed tests, or force a product into an unrelated story.
