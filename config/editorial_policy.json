@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "scope": "global",
+  "applies_to": ["research", "ideation", "scripting", "visuals", "metadata", "qa", "publishing", "analytics", "youtube", "bilibili"],
+  "principles": {
+    "viewer_value_first": true,
+    "original_editorial_contribution_required": true,
+    "research_claims_must_be_traceable": true,
+    "title_thumbnail_must_match_video": true,
+    "repetitive_mass_production_is_blocked": true,
+    "reuse_requires_rights_and_transformative_value_review": true,
+    "human_review_before_upload": true,
+    "public_release_requires_separate_human_approval": true
+  },
+  "research": {
+    "minimum_sources_standard": 2,
+    "minimum_sources_high_risk": 3,
+    "require_http_source_urls": true,
+    "track_publisher_and_publication_date": true,
+    "prefer_primary_sources_for_material_claims": true,
+    "separate_fact_estimate_forecast_and_opinion": true,
+    "flag_conflicting_or_unverified_claims": true
+  },
+  "originality": {
+    "require_distinct_thesis_or_angle": true,
+    "require_specific_viewer_payoff": true,
+    "block_duplicate_paragraphs": true,
+    "flag_template_like_or_interchangeable_episodes": true,
+    "require_visuals_to_explain_or_advance_the_story": true,
+    "third_party_material_requires_rights_review": true
+  },
+  "metadata": {
+    "title_must_truthfully_represent_video": true,
+    "thumbnail_must_not_fabricate_evidence_or_outcomes": true,
+    "description_must_open_with_unique_episode_summary": true,
+    "source_list_required": true,
+    "synthetic_media_disclosure_review": true,
+    "tags_are_secondary_to_topic_accuracy": true
+  },
+  "risk_profiles": {
+    "standard": {
+      "minimum_sources": 2,
+      "human_review_required": true
+    },
+    "high": {
+      "minimum_sources": 3,
+      "primary_source_preferred": true,
+      "finance_claims_review_required": true,
+      "no_guaranteed_returns_or_individualized_buy_sell_instructions": true,
+      "human_review_required": true
+    }
+  },
+  "publishing": {
+    "upload_privacy": "private",
+    "auto_publication": false,
+    "separate_public_approval_required": true,
+    "record_video_id_and_public_url": true,
+    "idempotency_required": true
+  },
+  "analytics": {
+    "track": ["impressions", "impressions_ctr", "views", "watch_time", "average_view_duration", "retention", "returning_viewers", "subscribers_gained", "rpm", "estimated_revenue", "production_cost"],
+    "compare_like_with_like": true,
+    "do_not_change_strategy_from_single_outlier": true,
+    "minimum_measured_episodes_before_channel_rule_changes": 5
+  },
+  "platform_notes": {
+    "youtube": {
+      "monetization_review_required": true,
+      "inauthentic_or_mass_produced_content_risk": "high",
+      "reused_content_policy_review_required": true
+    },
+    "bilibili": {
+      "platform_specific_rights_metadata_and_monetization_review_required": true
+    }
+  }
+}
