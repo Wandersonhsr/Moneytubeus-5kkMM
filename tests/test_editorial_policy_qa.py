@@ -22,6 +22,10 @@ def _package(script: str) -> dict:
     }
 
 
+def _valid_script() -> str:
+    return " ".join(["Evidence explains the underlying mechanism."] * 250)
+
+
 def test_duplicate_paragraphs_are_blocked():
     repeated = "A distinct paragraph with a factual explanation and meaningful detail."
     script = "\n\n".join([repeated] * 500)
@@ -32,7 +36,7 @@ def test_duplicate_paragraphs_are_blocked():
 
 
 def test_originality_and_viewer_payoff_are_required():
-    package = _package(" ".join(["Evidence explains the underlying mechanism."] * 1000))
+    package = _package(_valid_script())
     package["original_angle"] = ""
     package["viewer_payoff"] = ""
     result = run_package_qa(package, {"review_risk": "standard"})
@@ -42,16 +46,15 @@ def test_originality_and_viewer_payoff_are_required():
 
 
 def test_high_risk_requires_three_sources():
-    package = _package(" ".join(["Evidence explains the underlying mechanism."] * 1000))
+    package = _package(_valid_script())
     package["research"] = package["research"][:2]
     result = run_package_qa(package, {"review_risk": "high"})
     research_check = next(item for item in result["checks"] if item["check"] == "research_depth")
     assert research_check["passed"] is False
 
 
-
 def test_shopping_is_optional_and_not_assumed_eligible():
-    package = _package(" ".join(["Evidence explains the underlying mechanism."] * 1000))
+    package = _package(_valid_script())
     package["shopping"] = {
         "recommended": False,
         "product_candidates": [],
@@ -61,13 +64,14 @@ def test_shopping_is_optional_and_not_assumed_eligible():
         "native_affiliate_links_external_distribution_allowed": False,
     }
     result = run_package_qa(package, {"review_risk": "standard"})
-    assert result["passed"] is True or all(
-        item["check"] != "shopping_product_evidence" for item in result["checks"]
-    )
+    shopping_checks = [
+        item["check"] for item in result["checks"] if item["check"].startswith("shopping_")
+    ]
+    assert shopping_checks == []
 
 
 def test_shopping_product_requires_verified_relevance_and_offer():
-    package = _package(" ".join(["Evidence explains the underlying mechanism."] * 1000))
+    package = _package(_valid_script())
     package["shopping"] = {
         "recommended": True,
         "product_candidates": [
@@ -80,3 +84,38 @@ def test_shopping_product_requires_verified_relevance_and_offer():
     result = run_package_qa(package, {"review_risk": "standard"})
     check = next(item for item in result["checks"] if item["check"] == "shopping_product_evidence")
     assert check["passed"] is False
+    assert any(item["check"] == "shopping_product_evidence" for item in result["errors"])
+
+
+def test_shopping_product_with_evidence_passes_product_check_but_requires_studio_review():
+    package = _package(_valid_script())
+    package["shopping"] = {
+        "recommended": True,
+        "product_candidates": [
+            {
+                "name": "Example item",
+                "product_url": "https://merchant.example/item",
+                "episode_relevance": "Demonstrates the specific workflow explained in the episode.",
+                "offer_verified_at": "2026-10-12T10:00:00-03:00",
+            }
+        ],
+        "eligibility_verified_in_studio": False,
+        "product_tagging_status": "not_started",
+        "disclosure_reviewed": False,
+        "disclosure_review_required": True,
+    }
+    result = run_package_qa(package, {"review_risk": "standard"})
+    product_check = next(
+        item for item in result["checks"] if item["check"] == "shopping_product_evidence"
+    )
+    eligibility_check = next(
+        item for item in result["checks"] if item["check"] == "shopping_eligibility_and_tagging"
+    )
+    disclosure_check = next(
+        item for item in result["checks"] if item["check"] == "shopping_disclosure"
+    )
+    assert product_check["passed"] is True
+    assert eligibility_check["passed"] is False
+    assert disclosure_check["passed"] is False
+    assert any(item["check"] == "shopping_eligibility_and_tagging" for item in result["warnings"])
+    assert any(item["check"] == "shopping_disclosure" for item in result["warnings"])
