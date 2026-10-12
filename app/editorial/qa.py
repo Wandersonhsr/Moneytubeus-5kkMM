@@ -35,7 +35,10 @@ def run_package_qa(
     original_angle = str(package.get("original_angle", "")).strip()
     viewer_payoff = str(package.get("viewer_payoff", "")).strip()
     visual_beats = package.get("visual_beats", []) or []
-    assets = package.get("assets", package.get("visual_assets", [])) or []
+    assets = package.get("asset_manifest", package.get("assets", package.get("visual_assets", []))) or []
+    thumbnail_brief = package.get("thumbnail_brief", {}) or []
+    synthetic_media = bool(package.get("synthetic_media", False))
+    disclosure_reviewed = bool(package.get("synthetic_media_disclosure_reviewed", False))
     risk = channel.get("review_risk", "standard")
 
     checks = []
@@ -131,6 +134,22 @@ def run_package_qa(
             len(visual_beats) >= 3,
             "warning",
             f"{len(visual_beats)} visual beats; visuals should advance or explain the narrative",
+        )
+    )
+    checks.append(
+        _result(
+            "thumbnail_brief",
+            bool(thumbnail_brief),
+            "warning",
+            "provide a thumbnail concept and verify that it truthfully represents the video",
+        )
+    )
+    checks.append(
+        _result(
+            "synthetic_media_disclosure",
+            not synthetic_media or disclosure_reviewed,
+            "warning",
+            "review whether realistic altered/synthetic content requires platform disclosure",
         )
     )
     if assets:
