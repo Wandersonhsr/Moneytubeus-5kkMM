@@ -52,3 +52,23 @@ Track impressions, CTR, views, watch time, average view duration, retention, ret
 - YouTube synthetic/altered content disclosure: https://support.google.com/youtube/answer/14328491
 
 These references are operational inputs, not a guarantee of platform approval. Re-check official policy when platform rules change.
+
+
+## YouTube Shopping and product-led monetization
+
+YouTube Shopping is an **optional monetization layer**, not a requirement to insert products into every video. Use it only when a product is a genuine fit for the episode and audience.
+
+1. **Eligibility gate:** before planning native Shopping tags, verify the channel's current status in YouTube Studio. The official affiliate program requires YPP participation and the applicable subscriber threshold; availability and other restrictions vary by program and market. Brazil is listed as a supported market, but this does not guarantee an invitation or eligibility for a particular channel.
+2. **Product selection:** shortlist products that are genuinely demonstrated, explained, compared or directly useful to the viewer. Record product name, official seller/product URL, current offer evidence, audience fit, episode connection and any known commission details. Never fabricate price, availability, rating, commission or product claims.
+3. **Editorial independence:** do not distort the thesis or recommend a poor-fit product to monetize a video. If no product fits naturally, publish without Shopping placement.
+4. **Production:** when appropriate, include a truthful product demonstration or a clearly contextualized recommendation. The script must not imply personal use or test results that did not occur.
+5. **Tagging:** generate a product-tagging brief for the operator. Actual product tagging and eligibility confirmation must be completed in YouTube Studio unless a supported official API explicitly permits the operation. Do not simulate a successful tag.
+6. **Disclosure:** review paid promotion, sponsorship and affiliate disclosure requirements for the specific arrangement and platform. Do not imply that tagging a product alone replaces required disclosures.
+7. **Traffic restrictions:** native YouTube Shopping affiliate links are intended for genuine engagement on YouTube. Do not syndicate those native affiliate links to external sites or channels, use auto-redirects, inject clicks or manipulate cookies. Separate affiliate programs must follow their own terms.
+8. **Measurement:** capture product tags, clicks, attributed orders, commission, reversals/returns and net revenue when the platform exposes the data. Commissions may be reversed after returns and are paid after the applicable settlement period.
+9. **Fallback:** channels not eligible for native Shopping can continue building audience and use separately approved commerce models only when allowed by platform terms and applicable law.
+
+Official references:
+- https://support.google.com/youtube/answer/13376398?hl=pt-br
+- https://support.google.com/youtube/answer/12257682?hl=pt-BR
+- https://support.google.com/youtube/answer/17557085?hl=pt-BR
