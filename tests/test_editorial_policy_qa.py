@@ -47,3 +47,36 @@ def test_high_risk_requires_three_sources():
     result = run_package_qa(package, {"review_risk": "high"})
     research_check = next(item for item in result["checks"] if item["check"] == "research_depth")
     assert research_check["passed"] is False
+
+
+
+def test_shopping_is_optional_and_not_assumed_eligible():
+    package = _package(" ".join(["Evidence explains the underlying mechanism."] * 1000))
+    package["shopping"] = {
+        "recommended": False,
+        "product_candidates": [],
+        "eligibility_verified_in_studio": False,
+        "product_tagging_status": "not_started",
+        "disclosure_review_required": True,
+        "native_affiliate_links_external_distribution_allowed": False,
+    }
+    result = run_package_qa(package, {"review_risk": "standard"})
+    assert result["passed"] is True or all(
+        item["check"] != "shopping_product_evidence" for item in result["checks"]
+    )
+
+
+def test_shopping_product_requires_verified_relevance_and_offer():
+    package = _package(" ".join(["Evidence explains the underlying mechanism."] * 1000))
+    package["shopping"] = {
+        "recommended": True,
+        "product_candidates": [
+            {"name": "Example item", "product_url": "https://merchant.example/item"}
+        ],
+        "eligibility_verified_in_studio": False,
+        "product_tagging_status": "not_started",
+        "disclosure_review_required": True,
+    }
+    result = run_package_qa(package, {"review_risk": "standard"})
+    check = next(item for item in result["checks"] if item["check"] == "shopping_product_evidence")
+    assert check["passed"] is False
