@@ -99,7 +99,7 @@ def run_package_qa(
         )
     )
     domains = {
-        re.sub(r"^www\\.", "", __import__("urllib.parse", fromlist=["urlparse"]).urlparse(str(item.get("url", ""))).netloc.lower())
+        re.sub(r"^www\.", "", __import__("urllib.parse", fromlist=["urlparse"]).urlparse(str(item.get("url", ""))).netloc.lower())
         for item in research
         if str(item.get("url", "")).startswith(("http://", "https://"))
     }
@@ -112,8 +112,8 @@ def run_package_qa(
         )
     )
     paragraphs = [
-        re.sub(r"\\W+", " ", item.lower()).strip()
-        for item in re.split(r"\\n\\s*\\n", script)
+        re.sub(r"\W+", " ", item.lower()).strip()
+        for item in re.split(r"\n\s*\n", script)
         if item.strip()
     ]
     duplicate_paragraphs = len(paragraphs) != len(set(paragraphs))
