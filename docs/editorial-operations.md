@@ -1,5 +1,7 @@
 # Editorial operations playbook
 
+> Global mandatory controls: [`global-editorial-policy.md`](global-editorial-policy.md) and [`config/editorial_policy.json`](../config/editorial_policy.json). These apply to every channel and platform; channel settings may be stricter but must not weaken them.
+
 ## Operating model
 
 The existing MoneyPrinterTurbo fork remains the **media engine**. The editorial control plane owns channel identity, research packets, episode lifecycle, human review, publication intent and performance learning.
@@ -34,15 +36,15 @@ Capital Signal must separate documented facts, estimates and attributed interpre
 
 ## Daily workflow
 
-1. Research: create the episode and collect current RSS items from the channel's configured sources.
-2. Script: write the hook, thesis, evidence-backed sections, visual beats and CTA. The first lines of the description must contain a unique episode summary.
+1. Research: create the episode and collect current RSS items from the channel's configured sources. Meet the global minimum source count (2 standard / 3 high risk), record URLs/publishers/dates, prefer primary sources and flag unresolved conflicts.
+2. Script: write a distinct episode thesis/angle, a concrete viewer payoff, the hook, evidence-backed sections, visual beats and CTA. The first lines of the description must contain a unique episode summary. Do not produce source readouts or interchangeable template episodes.
 3. Generate: submit the script to the existing MoneyPrinterTurbo task queue. The editorial layer stores the engine task ID.
 4. Sync: poll the engine state. A completed engine task moves the episode to review; it never auto-approves.
-5. Review: watch the actual rendered video and verify factual accuracy, sources, hook, pacing, audio, subtitles, visual relevance, title/thumbnail promise, description and synthetic-media disclosure.
+5. Review: watch the actual rendered video and verify factual accuracy, source diversity, hook, pacing, audio, subtitles, visual relevance, title/thumbnail promise, description, asset rights/provenance and synthetic-media disclosure. QA warnings must be resolved or explicitly accepted by a reviewer.
 6. Approve: send explicit human approval. Bracket placeholders such as [SOURCES] block approval.
 7. Private upload: the V1 adapter reuses the existing Upload-Post integration for YouTube and forces privacyStatus=private. This is the only automated YouTube upload step.
 8. Final public gate: after the private upload, a human explicitly approves public release. The public transition itself remains a separate human action; the system records the resulting YouTube URL through mark-public.
-9. Measure: ingest views, likes, comments, impressions, CTR, average view duration, watch time, retention and subscribers gained. Then use the insights endpoint to compare measured performance. Do not change channel rules from a single outlier; wait for at least five measured episodes.
+9. Measure: ingest views, likes, comments, impressions, CTR, average view duration, watch time, retention, returning viewers, subscribers gained, RPM, estimated revenue and production cost where available. Then use the insights endpoint to compare measured performance. Do not change channel rules from a single outlier; wait for at least five measured episodes.
 
 ## API
 
