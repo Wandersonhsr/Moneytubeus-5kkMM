@@ -9,6 +9,29 @@ from app.config import config
 from app.utils import utils
 
 
+class TestCorsConfiguration(unittest.TestCase):
+    def test_open_default_does_not_allow_credentials(self):
+        self.assertEqual(asgi._cors_configuration(""), (["*"], False))
+        self.assertEqual(asgi._cors_configuration("*"), (["*"], False))
+
+    def test_explicit_allowlist_allows_credentials(self):
+        self.assertEqual(
+            asgi._cors_configuration(
+                " https://studio.example.com,https://admin.example.com "
+            ),
+            (
+                ["https://studio.example.com", "https://admin.example.com"],
+                True,
+            ),
+        )
+
+    def test_wildcard_wins_over_mixed_configuration(self):
+        self.assertEqual(
+            asgi._cors_configuration("https://studio.example.com, *"),
+            (["*"], False),
+        )
+
+
 class TestTaskStaticFiles(unittest.TestCase):
     def setUp(self):
         self.original_app_config = dict(config.app)

@@ -105,13 +105,25 @@ async def protect_generated_task_files(request: Request, call_next):
     return await call_next(request)
 
 
-# Configures the CORS middleware for the FastAPI app
-cors_allowed_origins_str = os.getenv("CORS_ALLOWED_ORIGINS", "")
-origins = cors_allowed_origins_str.split(",") if cors_allowed_origins_str else ["*"]
+# Configure CORS from a comma-separated allowlist. Browsers reject wildcard
+# origins combined with credentialed requests, and reflecting credentials to
+# every origin is unsafe. The open local default therefore allows ordinary
+# cross-origin requests without cookies; deployments that provide an explicit
+# allowlist may opt into credentialed requests.
+def _cors_configuration(value: str | None) -> tuple[list[str], bool]:
+    origins = [origin.strip() for origin in (value or "").split(",") if origin.strip()]
+    if not origins or "*" in origins:
+        return ["*"], False
+    return origins, True
+
+
+origins, allow_credentials = _cors_configuration(
+    os.getenv("CORS_ALLOWED_ORIGINS", "")
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

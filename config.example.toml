@@ -11,6 +11,12 @@ log_level = "DEBUG"
 listen_host = "0.0.0.0"
 listen_port = 8080
 
+# Comma-separated browser origins are configured through the
+# CORS_ALLOWED_ORIGINS environment variable. An empty value keeps the local
+# compatibility default (all origins, without cookies/HTTP credentials).
+# Public deployments should provide their exact HTTPS origins, for example:
+# CORS_ALLOWED_ORIGINS=https://studio.example.com,https://admin.example.com
+
 [app]
 
 # Optional protection for API routes and generated files under /tasks.

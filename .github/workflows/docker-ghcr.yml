@@ -21,7 +21,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: ghcr.io/harry0703/moneyprinterturbo
+  # Publish this fork into its own package namespace. Keeping the upstream
+  # namespace here makes fork builds fail after authentication because the
+  # fork token cannot write packages owned by harry0703.
+  IMAGE_NAME: ghcr.io/wandersonhsr/moneytubeus-5kkmm
 
 jobs:
   publish:

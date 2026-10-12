@@ -1,0 +1,52 @@
+{
+  "channels": {
+    "nexbrain": {
+      "name": "Nexbrain",
+      "language": "en-US",
+      "niche": "AI, future technology, automation, future of work and human potential",
+      "cadence": "1/day",
+      "validation_cadence": "5/week",
+      "duration_min_minutes": 8,
+      "duration_max_minutes": 14,
+      "format": "cinematic documentary",
+      "pillars": ["AI breakthroughs", "AI tools and workflows", "future of work", "automation", "human potential"],
+      "voice_name": "en-US-AriaNeural",
+      "video_source": "pexels",
+      "video_aspect": "16:9",
+      "subtitle_enabled": true,
+      "review_risk": "standard",
+      "research_feeds": [
+        "https://blog.google/technology/ai/rss/",
+        "https://www.microsoft.com/en-us/research/feed/",
+        "https://www.technologyreview.com/feed/",
+        "https://www.theverge.com/rss/index.xml"
+      ],
+      "source_policy": "Prefer primary sources, research labs, official company announcements and reputable technical publications.",
+      "description_policy": "First lines must contain a unique episode summary. Replace every source placeholder before approval."
+    },
+    "capital-signal": {
+      "name": "Capital Signal",
+      "language": "en-US",
+      "niche": "money systems, markets, macroeconomics, behavioral finance and documented economic/company developments",
+      "cadence": "1/day",
+      "validation_cadence": "5/week",
+      "duration_min_minutes": 8,
+      "duration_max_minutes": 14,
+      "format": "data-driven cinematic documentary",
+      "pillars": ["macro signals", "market structure", "behavioral finance", "business economics", "wealth systems"],
+      "voice_name": "en-US-GuyNeural",
+      "video_source": "pexels",
+      "video_aspect": "16:9",
+      "subtitle_enabled": true,
+      "review_risk": "high",
+      "research_feeds": [
+        "https://www.federalreserve.gov/feeds/press_all.xml",
+        "https://www.bls.gov/feed/bls_latest.rss",
+        "https://www.sec.gov/news/pressreleases.rss",
+        "https://www.imf.org/en/News/rss"
+      ],
+      "source_policy": "Use primary government, regulatory, company filing and institutional sources whenever available. Distinguish facts, estimates and attributed interpretations. Do not provide personalized investment advice.",
+      "description_policy": "First lines must contain a unique episode summary. Replace every source placeholder before approval."
+    }
+  }
+}
