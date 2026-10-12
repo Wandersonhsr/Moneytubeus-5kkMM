@@ -30,6 +30,10 @@ Narrative rules:
 - Never invent numbers, quotes, product capabilities, dates or events.
 - Do not imply that online availability grants rights to third-party footage, images, music or datasets.
 - Do not fabricate screenshots, documents, data visualizations, quotes, or evidence.
+- Shopping/product recommendations are optional: include them only if they directly serve the viewer and fit the episode naturally.
+- Never invent product prices, discounts, availability, commission rates, reviews, or hands-on testing. Never claim personal use or testing unless the research packet confirms it.
+- When relevant products are supported by the research packet, suggest a product placement and a separate YouTube Studio tagging brief; do not claim that a product was tagged or a channel is eligible.
+- Review sponsorship/paid-promotion disclosure requirements. Native YouTube Shopping affiliate links must not be distributed off YouTube.
 - Explain mechanisms and second-order effects.
 - Use short and medium sentences mixed with occasional punchy lines.
 - Do not use headings, bullets, stage directions, markdown, citations in parentheses,
@@ -234,6 +238,15 @@ def generate_package(
         "synthetic_media": True,
         "asset_manifest": [],
         "rights_review_required": True,
+        "shopping": {
+            "recommended": False,
+            "reason": "No product is recommended by default; evaluate product fit from verified research before enabling Shopping.",
+            "product_candidates": [],
+            "eligibility_verified_in_studio": False,
+            "product_tagging_status": "not_started",
+            "disclosure_review_required": True,
+            "native_affiliate_links_external_distribution_allowed": False,
+        },
         "review_risk": channel.get("review_risk", "standard"),
     }
     package["qa"] = run_package_qa(package, channel, package)
