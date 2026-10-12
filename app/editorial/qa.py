@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 PLACEHOLDER_RE = re.compile(r"\[[A-Za-z][A-Za-z0-9 _-]{2,}\]")
@@ -9,6 +12,16 @@ DANGEROUS_FINANCE_RE = re.compile(
     r"\b(guaranteed return|risk-free|you should buy|you should sell|guaranteed profit)\b",
     re.IGNORECASE,
 )
+
+
+def _load_policy() -> dict[str, Any]:
+    policy_path = Path(__file__).resolve().parents[2] / "config" / "editorial_policy.json"
+    try:
+        with policy_path.open(encoding="utf-8") as handle:
+            return json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        # Safe fallback keeps QA available in packaged deployments; defaults are conservative.
+        return {"risk_profiles": {"standard": {"minimum_sources": 2}, "high": {"minimum_sources": 3}}}
 
 
 def _result(name: str, passed: bool, severity: str = "error", detail: str = "") -> dict[str, Any]:
@@ -86,7 +99,13 @@ def run_package_qa(
             detail="replace source and template placeholders before approval",
         )
     )
-    min_sources = 3 if risk == "high" else 2
+    policy = _load_policy()
+    risk_profiles = policy.get("risk_profiles", {})
+    min_sources = int(
+        risk_profiles.get(risk, risk_profiles.get("standard", {})).get(
+            "minimum_sources", 3 if risk == "high" else 2
+        )
+    )
     checks.append(
         _result(
             "research_depth",
@@ -102,7 +121,7 @@ def run_package_qa(
         )
     )
     domains = {
-        re.sub(r"^www\.", "", __import__("urllib.parse", fromlist=["urlparse"]).urlparse(str(item.get("url", ""))).netloc.lower())
+        re.sub(r"^www\.", "", urlparse(str(item.get("url", ""))).netloc.lower())
         for item in research
         if str(item.get("url", "")).startswith(("http://", "https://"))
     }
